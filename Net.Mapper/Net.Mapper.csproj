@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Authors>Salih Keleş</Authors>
+    <Description>Runtime class and interface mapping</Description>
+    <Copyright>©2019 Salih Keleş</Copyright>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Net.Expressions" Version="1.0.0" />
+    <PackageReference Include="Net.Proxy" Version="1.0.0" />
+  </ItemGroup>
+
+</Project>
