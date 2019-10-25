@@ -49,7 +49,6 @@ namespace Net.Mapper
             }
 
         }
-
       
         private static bool isQueryeableSelectFn(MethodInfo mi)
         {
@@ -68,6 +67,14 @@ namespace Net.Mapper
             var method = typeof(Queryable)
                 .FindMethod("Select", isQueryeableSelectFn, typeof(T), mappingType);
             return method.Invoke(queryable, new object[] { queryable, mappingExpression }) as IQueryable;
+
+        }
+
+        public static object ObjectMap(this object obj,Type mappingType)
+        {
+            if (obj is null) return null;
+            var mapper = new TypePair(obj.GetType(), mappingType).GetMapper();
+            return mapper.Map(obj);
 
         }
 
