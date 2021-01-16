@@ -13,6 +13,7 @@ namespace Net.Mapper
         private Delegate CompiledDelegate;
         public object Map(object instance)
         {
+            if (!this.CanMappable) throw new NotSupportedException($"{this.TypePair} is not mappable");
             if(this.CompiledDelegate == null)
             {
                 this.CompiledDelegate = this.LambdaExpression.Compile();

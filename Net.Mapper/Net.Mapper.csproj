@@ -1,16 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <Authors>Salih Keleş</Authors>
     <Description>Runtime class and interface mapping</Description>
     <Copyright>©2019 Salih Keleş</Copyright>
-    <Version>1.0.1</Version>
+    <Version>1.2.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Net.Expressions" Version="1.0.3" />
-    <PackageReference Include="Net.Proxy" Version="1.0.2" />
+    <PackageReference Include="Net.Expressions" Version="1.1.0" />
+    <PackageReference Include="Net.Proxy" Version="1.2.0" />
   </ItemGroup>
 
 </Project>
