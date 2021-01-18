@@ -5,12 +5,12 @@
     <Authors>Salih Keleş</Authors>
     <Description>Runtime class and interface mapping</Description>
     <Copyright>©2019 Salih Keleş</Copyright>
-    <Version>1.2.0</Version>
+    <Version>1.2.2</Version>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Net.Expressions" Version="1.1.0" />
-    <PackageReference Include="Net.Proxy" Version="1.2.0" />
+    <PackageReference Include="Net.Proxy" Version="1.2.5" />
   </ItemGroup>
 
 </Project>
