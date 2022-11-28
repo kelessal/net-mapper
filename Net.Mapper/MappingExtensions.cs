@@ -74,7 +74,40 @@ namespace Net.Mapper
             
 
         }
-      
+        public static void ObjectAssignAll(this object obj1, object obj2)
+        {
+            var info1 = obj1.GetType().GetInfo();
+            var info2 = obj2.GetType().GetInfo();
+            if (info1.PropertySize > info2.PropertySize)
+            {
+                foreach (var prop2 in info2.GetAllProperties())
+                {
+                    if (!info1.HasProperty(prop2.Name)) continue;
+                    var prop1 = info1[prop2.Name];
+                    if (!prop1.Raw.CanWrite) continue;
+                    var prop2Value = prop2.GetValue(obj2);
+                    if (prop2.Type != prop1.Type)
+                        prop2Value = prop2Value.As(prop1.Type);
+                    prop1.SetValue(obj1, prop2Value);
+                }
+
+            }
+            else
+            {
+
+                foreach (var prop1 in info1.GetAllProperties())
+                {
+                    if (!info2.HasProperty(prop1.Name)) continue;
+                    var prop2 = info2[prop1.Name];
+                    if (!prop1.Raw.CanWrite) continue;
+                    var prop2Value = prop2.GetValue(obj2);
+                    if (prop2.Type != prop1.Type)
+                        prop2Value = prop2Value.As(prop1.Type);
+                    prop1.SetValue(obj1, prop2Value);
+                }
+            }
+
+        }
         private static bool isQueryeableSelectFn(MethodInfo mi)
         {
             var parameters = mi.GetParameters();
