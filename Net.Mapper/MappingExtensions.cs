@@ -44,6 +44,7 @@ namespace Net.Mapper
             {
                 foreach (var prop2 in info2.GetAllProperties())
                 {
+                    if (prop2.HasAttribute<IgnoreAssignAttribute>()) continue;
                     if (exceptionSet.Contains(prop2.Name)) continue;
                     if (!info1.HasProperty(prop2.Name)) continue;
                     var prop1 = info1[prop2.Name];
@@ -65,6 +66,7 @@ namespace Net.Mapper
                     if (exceptionSet.Contains(prop1.Name)) continue;
                     if (!info2.HasProperty(prop1.Name)) continue;
                     var prop2 = info2[prop1.Name];
+                    if (prop2.HasAttribute<IgnoreAssignAttribute>()) continue;
                     if (!prop1.Raw.CanWrite) continue;
                     var prop2Value = prop2.GetValue(obj2);
                     if (prop2Value.IsNull()) continue;
@@ -84,6 +86,8 @@ namespace Net.Mapper
             {
                 foreach (var prop2 in info2.GetAllProperties())
                 {
+                    if (prop2.HasAttribute<IgnoreAssignAttribute>()) continue;
+
                     if (!info1.HasProperty(prop2.Name)) continue;
                     var prop1 = info1[prop2.Name];
                     if (!prop1.Raw.CanWrite) continue;
@@ -105,6 +109,7 @@ namespace Net.Mapper
                     if (prop1.HasAttribute<IgnoreAssignAttribute>()) continue;
                     if (!info2.HasProperty(prop1.Name)) continue;
                     var prop2 = info2[prop1.Name];
+                    if (prop2.HasAttribute<IgnoreAssignAttribute>()) continue;
                     if (!prop1.Raw.CanWrite) continue;
                     var prop2Value = prop2.GetValue(obj2);
                     if (prop2.Type != prop1.Type)
