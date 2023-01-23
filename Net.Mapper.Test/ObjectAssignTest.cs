@@ -1,4 +1,5 @@
-using System;
+﻿using System;
+using System.Dynamic;
 using Xunit;
 
 namespace Net.Mapper.Test
@@ -18,13 +19,19 @@ namespace Net.Mapper.Test
                     Age = 50
                 }
             };
-            var testB = new TestB()
+            dynamic testB = new ExpandoObject();
+            testB.name = "Salih";
+            testB.age = "3";
+            testB.nested = new
             {
-                Name = "My Name B",
-                Age = 40,
-               
+                Name = "Keleş",
+                ages = 6
             };
-            testA.ObjectAssign(testB);
+            var testD=new ExpandoObject();
+            var testC=new ExpandoObject();
+            testC.ObjectAssign(testA);
+            testD.ObjectAssign(testC);
+            testA.ObjectAssign((object)testB);
         }
     }
 }
