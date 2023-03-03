@@ -1,6 +1,7 @@
 ﻿using Net.Extensions;
 using Net.Reflection;
 using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,16 +44,80 @@ namespace Net.Mapper
                 throw new Exception("Only complex object can be assigned");
             return true;
         }
-        public static bool ObjectAssign(this object obj1,object obj2,params string[] exceptions)
+        public static bool IsLogicalEqual(this object obj1, object obj2, HashSet<string> exceptionSet = default)
         {
-            if (!IsValidObjectAssignObject(obj2)) return false;
-            if (!IsValidObjectAssignObject(obj1)) return false;
+            exceptionSet = exceptionSet ?? new HashSet<string>();
+            if (obj1 == null && obj2 == null) return true;
+            if (obj1 == null || obj2 == null) return false;
+            var info1 = obj1.GetType().GetInfo();
+            var info2 = obj2.GetType().GetInfo();
+            if (info1.Kind != info2.Kind) return false;
+            if (info1.Kind == TypeKind.Unknown || info1.Kind == TypeKind.Primitive)
+                return obj1.Equals(obj2);
+            if (info1.Kind == TypeKind.Collection)
+            {
+                var list1 = (obj1 as IEnumerable).Cast<object>().ToArray();
+                var list2 = (obj2 as IEnumerable).Cast<object>().ToArray();
+                if (list1.Length != list2.Length) return false;
+                for (int i = 0; i < list1.Length; i++)
+                    if (!list1[i].IsLogicalEqual(list2[i]))
+                        return false;
+                return true;
+            }
+            var obj1IsDic = obj1 is IDictionary<string, object>;
+            var obj2IsDic = obj2 is IDictionary<string, object>;
+            if (obj1IsDic && obj2IsDic)
+            {
+                var obj1Dic = obj1 as IDictionary<string, object>;
+                var obj2Dic = obj2 as IDictionary<string, object>;
+                foreach (var key in obj2Dic.Keys)
+                {
+                    var upKey = key.ToUpperFirstLetter();
+                    if (exceptionSet.Contains(key) || exceptionSet.Contains(upKey)) continue;
+                    if (!obj1Dic.GetSafeValue(key).IsLogicalEqual(obj2Dic[key])) return false;
+                }
+                return true;
+            }
+            else if (obj1IsDic && !obj2IsDic)
+            {
+                var obj1Dic = obj1 as IDictionary<string, object>;
+                foreach (var propInfo2 in info2.GetAllProperties())
+                {
+                    if (propInfo2.HasAttribute<NoMapAttribute>()) continue;
+                    if (propInfo2.HasAttribute<IgnoreAssignAttribute>()) continue;
+                    var lowKey = propInfo2.Name.ToLowerFirstLetter();
+                    if (exceptionSet.Contains(propInfo2.Name) || exceptionSet.Contains(lowKey)) continue;
+                    var obj1Value = obj1Dic.GetSafeValue(propInfo2.Name) ?? obj1Dic.GetSafeValue(lowKey);
+                    if (!obj1Value.IsLogicalEqual(propInfo2.GetValue(obj2))) return false;
+
+                }
+                return true;
+            } else 
+            {
+                foreach (var propInfo2 in info2.GetAllProperties())
+                {
+                    if (info1.HasProperty(propInfo2.Name)) continue;
+                    var propInfo1 = info1[propInfo2.Name];
+                    if (propInfo2.HasAttribute<NoMapAttribute>()) continue;
+                    if (propInfo2.HasAttribute<IgnoreAssignAttribute>()) continue;
+                    if (propInfo1.HasAttribute<IgnoreAssignAttribute>()) continue;
+                    if (propInfo1.HasAttribute<NoMapAttribute>()) continue;
+                    var lowKey = propInfo2.Name.ToLowerFirstLetter();
+                    if (exceptionSet.Contains(propInfo2.Name) || exceptionSet.Contains(lowKey)) continue;
+                    var obj1Value = propInfo1.GetValue(obj1);
+                    if (!obj1Value.IsLogicalEqual(propInfo2.GetValue(obj2))) return false;
+
+                }
+                return true;
+            }
+        }
+        public static void ObjectAssign(this object obj1,object obj2,HashSet<string> exceptionSet=default)
+        {
+            exceptionSet=exceptionSet?? new HashSet<string>();
+            if (!IsValidObjectAssignObject(obj2)) return;
+            if (!IsValidObjectAssignObject(obj1)) return;
             var obj1IsDic = obj1 is IDictionary<string, object>; 
             var obj2IsDic = obj2 is IDictionary<string, object>;
-            var exceptionSet = obj2IsDic ? exceptions.AsSafeEnumerable()
-                .Select(p => p.ToLowerFirstLetter()).ToHashSet()
-                :exceptions.AsSafeEnumerable().ToHashSet();
-            var isAssignedAny = false;
             if(obj1IsDic && obj2IsDic)
             {
                 var obj1Dic=obj1 as IDictionary<string, object>;
@@ -60,10 +125,9 @@ namespace Net.Mapper
                 foreach (var key in obj2Dic.Keys)
                 {
                     var lowKey = key.ToLowerFirstLetter();
-                    if (exceptionSet.Contains(lowKey)) continue;
+                    if (exceptionSet.Contains(lowKey) || exceptionSet.Contains(key)) continue;
                     if (obj1Dic.GetSafeValue(lowKey) == obj2Dic[key]) continue;
                     obj1Dic[lowKey] = obj2Dic[key];
-                    isAssignedAny = true;
                 }
             } 
             else if(!obj1IsDic && obj2IsDic)
@@ -73,18 +137,15 @@ namespace Net.Mapper
                 foreach (var key in obj2Dic.Keys)
                 {
                     var upKey = key.ToUpperFirstLetter();
-                    if (exceptionSet.Contains(key) || exceptions.Contains(upKey)) continue;
+                    if (exceptionSet.Contains(key) || exceptionSet.Contains(upKey)) continue;
                     var prop1 = typeInfo1[upKey] ?? typeInfo1[key];
                     if (prop1.IsNull()) continue;
                     if (!prop1.Raw.CanWrite) continue;
                     if (prop1.HasAttribute<IgnoreAssignAttribute>()) continue;
+                    if (prop1.HasAttribute<NoMapAttribute>()) continue;
                     var prop2Value=obj2Dic.GetSafeValue(key).As(prop1.Type);
-                    var prop1Value=prop1.GetValue(obj1);
-                    if(prop1Value.IsLogicalEqual(prop2Value)) continue;
                     prop1.SetValue(obj1,prop2Value);
-                    isAssignedAny=true;
                 }
-                var props = obj2.GetType().GetInfo().GetAllProperties();
 
             }
             else if(obj1IsDic && !obj2IsDic)
@@ -94,13 +155,11 @@ namespace Net.Mapper
                 foreach (var prop2 in typeInfo2.GetAllProperties())
                 {
                     var lowKey = prop2.Name.ToUpperFirstLetter();
-                    if (exceptionSet.Contains(lowKey) || exceptions.Contains(prop2.Name)) continue;
+                    if (exceptionSet.Contains(lowKey) || exceptionSet.Contains(prop2.Name)) continue;
                     if (prop2.HasAttribute<IgnoreAssignAttribute>()) continue;
-                    var prop1Value = obj1Dic.GetSafeValue(lowKey) ?? obj1Dic.GetSafeValue(prop2.Name);
+                    if (prop2.HasAttribute<NoMapAttribute>()) continue;
                     var prop2Value = prop2.GetValue(obj2);
-                    if(prop1Value == prop2Value) continue;
                     obj1Dic[lowKey]=prop2Value;
-                    isAssignedAny = true;
                 }
 
             } else
@@ -111,17 +170,18 @@ namespace Net.Mapper
                 {
                     if (exceptionSet.Contains(prop2.Name)) continue;
                     if (prop2.HasAttribute<IgnoreAssignAttribute>()) continue;
+                    if (prop2.HasAttribute<NoMapAttribute>()) continue;
                     if (!typeInfo1.HasProperty(prop2.Name)) continue;
                     var propInfo1 = typeInfo1[prop2.Name];
+                    if (!propInfo1.Raw.CanWrite) continue;
                     if (propInfo1.HasAttribute<IgnoreAssignAttribute>()) continue;
+                    if (propInfo1.HasAttribute<NoMapAttribute>()) continue;
                     var prop1Value = propInfo1.GetValue(obj1);
                     var prop2Value = prop2.GetValue(obj2).As(propInfo1.Type);
-                    if (prop1Value.IsLogicalEqual(prop2Value)) continue;
+                    if (prop1Value == prop2Value) continue;
                     propInfo1.SetValue(obj1, prop2Value);
-                    isAssignedAny = true;
                 }
             }
-            return isAssignedAny;
 
         }
         private static bool isQueryeableSelectFn(MethodInfo mi)
