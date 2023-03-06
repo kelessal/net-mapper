@@ -96,7 +96,7 @@ namespace Net.Mapper
             {
                 foreach (var propInfo2 in info2.GetAllProperties())
                 {
-                    if (info1.HasProperty(propInfo2.Name)) continue;
+                    if (!info1.HasProperty(propInfo2.Name)) continue;
                     var propInfo1 = info1[propInfo2.Name];
                     if (propInfo2.HasAttribute<NoMapAttribute>()) continue;
                     if (propInfo2.HasAttribute<IgnoreAssignAttribute>()) continue;
