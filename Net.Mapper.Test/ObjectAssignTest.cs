@@ -33,5 +33,30 @@ namespace Net.Mapper.Test
             testD.ObjectAssign(testC);
             testA.ObjectAssign((object)testB);
         }
+        [Fact]
+        public void Test2()
+        {
+            var testA = new TestA()
+            {
+                Name = "My Name A",
+                Age = 32,
+                Nested = new TestAA()
+                {
+                    Name = "My Name Nested A",
+                    Age = 50
+                }
+            };
+            var testB = new TestA()
+            {
+                Name = "My Name A",
+                Age = 32,
+                Nested = new TestAA()
+                {
+                    Name = "My Name Nested A",
+                    Age = 50
+                }
+            };
+            var isEqual=testA.IsLogicalEqual(testB);
+        }
     }
 }
