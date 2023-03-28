@@ -9,6 +9,7 @@ namespace Net.Mapper.Test
         public string Name { get; set; }
         public int Age { get; set; }
         public TestAA Nested { get; set; }
+        public int[] IntList { get; set; }
     }
     public class TestAA
     {

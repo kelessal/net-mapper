@@ -58,5 +58,32 @@ namespace Net.Mapper.Test
             };
             var isEqual=testA.IsLogicalEqual(testB);
         }
+        [Fact]
+        public void Test3()
+        {
+            var testA = new TestA()
+            {
+                Name = "My Name A",
+                Age = 32,
+                Nested = new TestAA()
+                {
+                    Name = "",
+                    Age = 50
+                },
+                IntList=new int[] {}
+            };
+            var testB = new TestA()
+            {
+                Name = "My Name A",
+                Age = 32,
+                Nested = new TestAA()
+                {
+                    Name = null,
+                    Age = 50
+                },
+                IntList = null
+            };
+            var isEqual = testA.IsLogicalEqual(testB);
+        }
     }
 }

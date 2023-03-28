@@ -47,6 +47,23 @@ namespace Net.Mapper
         public static bool IsLogicalEqual(this object obj1, object obj2, HashSet<string> exceptionSet = default)
         {
             exceptionSet = exceptionSet ?? new HashSet<string>();
+            if (obj1 is string str)
+            {
+                if (str.IsEmpty()) obj1 = null;
+            } else if(obj1 is IEnumerable e1)
+            {
+                if(e1.Cast<object>().IsEmpty())
+                    obj1 = null;
+            }
+            if (obj2 is string str2)
+            {
+                if (str2.IsEmpty()) obj2 = null;
+            }
+            else if (obj2 is IEnumerable e2)
+            {
+                if (e2.Cast<object>().IsEmpty())
+                    obj2 = null;
+            }
             if (obj1 == null && obj2 == null) return true;
             if (obj1 == null || obj2 == null) return false;
             var info1 = obj1.GetType().GetInfo();
