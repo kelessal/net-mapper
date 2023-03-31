@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Net.Json;
+using Net.Proxy;
+using System;
 using System.Dynamic;
 using Xunit;
 
@@ -6,6 +8,18 @@ namespace Net.Mapper.Test
 {
     public class ObjectAssignTest
     {
+
+        [Fact]
+        public void IsLogicalEqualTest()
+        {
+            var a = "{items:[{day:1234}]}".Deserialize<Interface2>();
+            var b = "{items:null}".Deserialize<Interface2>();
+            var result =a.IsLogicalEqual(b);
+            var x1 = new[] { new TestA() { Age = 32342 } };
+            var x2=new[] {new TestA() };
+            var x=x1.IsLogicalEqual(x2);
+        }
+
         [Fact]
         public void Test1()
         {
