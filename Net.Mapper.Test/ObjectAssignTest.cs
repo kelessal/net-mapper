@@ -12,8 +12,10 @@ namespace Net.Mapper.Test
         [Fact]
         public void IsLogicalEqualTest()
         {
-            var a = "{items:[{day:1234}]}".Deserialize<Interface2>();
-            var b = "{items:null}".Deserialize<Interface2>();
+            var a = new TestA();
+            a.Dic[12] = 3;
+            var b = new TestA();
+            b.Dic[4] = 3;
             var result =a.IsLogicalEqual(b);
             var x1 = new[] { new TestA() { Age = 32342 } };
             var x2=new[] {new TestA() };

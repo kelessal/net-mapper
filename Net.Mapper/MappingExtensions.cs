@@ -109,7 +109,18 @@ namespace Net.Mapper
 
                 }
                 return true;
-            } else 
+            } 
+            else if (obj1 is IDictionary customDic1 && obj2 is IDictionary customDic2)
+            {
+                if(customDic1.Count!=customDic2.Count) return false;
+                foreach(var key in customDic2.Keys)
+                {
+                    if (!customDic1.Contains(key)) return false;
+                    if (!IsLogicalEqual(customDic1[key], customDic2[key])) return false;
+                }
+                return true;
+            }
+            else 
             {
                 foreach (var propInfo2 in info2.GetAllProperties())
                 {
