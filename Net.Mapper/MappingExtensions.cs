@@ -100,7 +100,6 @@ namespace Net.Mapper
                 var obj1Dic = obj1 as IDictionary<string, object>;
                 foreach (var propInfo2 in info2.GetAllProperties())
                 {
-                    if (propInfo2.HasAttribute<NoMapAttribute>()) continue;
                     if (propInfo2.HasAttribute<IgnoreAssignAttribute>()) continue;
                     var lowKey = propInfo2.Name.ToLowerFirstLetter();
                     if (exceptionSet.Contains(propInfo2.Name) || exceptionSet.Contains(lowKey)) continue;
@@ -115,10 +114,8 @@ namespace Net.Mapper
                 {
                     if (!info1.HasProperty(propInfo2.Name)) continue;
                     var propInfo1 = info1[propInfo2.Name];
-                    if (propInfo2.HasAttribute<NoMapAttribute>()) continue;
                     if (propInfo2.HasAttribute<IgnoreAssignAttribute>()) continue;
                     if (propInfo1.HasAttribute<IgnoreAssignAttribute>()) continue;
-                    if (propInfo1.HasAttribute<NoMapAttribute>()) continue;
                     var lowKey = propInfo2.Name.ToLowerFirstLetter();
                     if (exceptionSet.Contains(propInfo2.Name) || exceptionSet.Contains(lowKey)) continue;
                     var obj1Value = propInfo1.GetValue(obj1);
@@ -159,7 +156,6 @@ namespace Net.Mapper
                     if (prop1.IsNull()) continue;
                     if (!prop1.Raw.CanWrite) continue;
                     if (prop1.HasAttribute<IgnoreAssignAttribute>()) continue;
-                    if (prop1.HasAttribute<NoMapAttribute>()) continue;
                     var prop2Value=obj2Dic.GetSafeValue(key).As(prop1.Type);
                     prop1.SetValue(obj1,prop2Value);
                 }
@@ -174,7 +170,6 @@ namespace Net.Mapper
                     var lowKey = prop2.Name.ToUpperFirstLetter();
                     if (exceptionSet.Contains(lowKey) || exceptionSet.Contains(prop2.Name)) continue;
                     if (prop2.HasAttribute<IgnoreAssignAttribute>()) continue;
-                    if (prop2.HasAttribute<NoMapAttribute>()) continue;
                     var prop2Value = prop2.GetValue(obj2);
                     obj1Dic[lowKey]=prop2Value;
                 }
@@ -187,12 +182,10 @@ namespace Net.Mapper
                 {
                     if (exceptionSet.Contains(prop2.Name)) continue;
                     if (prop2.HasAttribute<IgnoreAssignAttribute>()) continue;
-                    if (prop2.HasAttribute<NoMapAttribute>()) continue;
                     if (!typeInfo1.HasProperty(prop2.Name)) continue;
                     var propInfo1 = typeInfo1[prop2.Name];
                     if (!propInfo1.Raw.CanWrite) continue;
                     if (propInfo1.HasAttribute<IgnoreAssignAttribute>()) continue;
-                    if (propInfo1.HasAttribute<NoMapAttribute>()) continue;
                     var prop1Value = propInfo1.GetValue(obj1);
                     var prop2Value = prop2.GetValue(obj2).As(propInfo1.Type);
                     if (prop1Value == prop2Value) continue;

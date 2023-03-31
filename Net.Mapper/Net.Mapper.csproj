@@ -5,7 +5,7 @@
     <Authors>Salih Keleş</Authors>
     <Description>Runtime class and interface mapping</Description>
     <Copyright>©2019 Salih Keleş</Copyright>
-    <Version>5.1</Version>
+    <Version>5.2</Version>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
   </PropertyGroup>
 
