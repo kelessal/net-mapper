@@ -66,6 +66,7 @@ namespace Net.Mapper
             }
             if (obj1 == null && obj2 == null) return true;
             if (obj1 == null || obj2 == null) return false;
+            if (obj1.Equals(obj2)) return true;
             var info1 = obj1.GetType().GetInfo();
             var info2 = obj2.GetType().GetInfo();
             if (info1.Kind != info2.Kind) return false;
