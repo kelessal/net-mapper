@@ -46,6 +46,7 @@ namespace Net.Mapper
         }
         public static bool IsLogicalEqual(this object obj1, object obj2, HashSet<string> exceptionSet = default)
         {
+
             exceptionSet = exceptionSet ?? new HashSet<string>();
             if (obj1 is string str)
             {
@@ -66,7 +67,9 @@ namespace Net.Mapper
             }
             if (obj1 == null && obj2 == null) return true;
             if (obj1 == null || obj2 == null) return false;
-            if (obj1.Equals(obj2)) return true;
+            if (obj1 is ILogicalEquatable lobj1 && obj2 is ILogicalEquatable lobj2) return lobj1.LogicalEquals(obj2) && lobj2.LogicalEquals(obj1);
+             if(obj1 is ILogicalEquatable lobj11) return lobj11.LogicalEquals(obj2);
+            if (obj2 is ILogicalEquatable lob22) return lob22.LogicalEquals(obj1);
             var info1 = obj1.GetType().GetInfo();
             var info2 = obj2.GetType().GetInfo();
             if (info1.Kind != info2.Kind) return false;
